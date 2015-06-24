@@ -42,21 +42,7 @@ public class GameFragment extends Fragment implements Observer {
     @Override
     public void onStart() {
         super.onStart();
-        gameGrid = (GridLayout) getActivity().findViewById(R.id.gameGrid);
-        gameGrid.setColumnCount(game.FIELD_SIZE);
-        gameGrid.setRowCount(game.FIELD_SIZE);
-        LayoutInflater inflater = (LayoutInflater)   getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view;
-//        android.widget.GridLayout.LayoutParams layoutMargin = new android.widget.GridLayout.LayoutParams();
-//        layoutMargin.ma
-
-        for (int i = 0; i < game.FIELD_SIZE; i++) {
-            for (int j = 0; j < game.FIELD_SIZE; j++) {
-                view = inflater.inflate(R.layout.grid_cell, null);
-//                view.setLayoutParams();
-                gameGrid.addView(view, i * game.FIELD_SIZE + j);
-            }
-        }
+//        gameGrid = (GridLayout) getActivity().findViewById(R.id.gameGrid);
     }
 
     @Override
@@ -64,6 +50,18 @@ public class GameFragment extends Fragment implements Observer {
         View rootView = inflater.inflate(R.layout.fragment_game, container, false);
         Fragment fragment = this;
         game = new Game((Observer) fragment);
+        gameGrid = (GridLayout) rootView.findViewById(R.id.gameGrid);
+        gameGrid.setColumnCount(game.FIELD_SIZE);
+        gameGrid.setRowCount(game.FIELD_SIZE);
+        gameGrid.setUseDefaultMargins(true);
+
+        View view;
+        for (int i = 0; i < game.FIELD_SIZE; i++) {
+            for (int j = 0; j < game.FIELD_SIZE; j++) {
+                view = inflater.inflate(R.layout.grid_cell, null);
+                gameGrid.addView(view); //, i * game.FIELD_SIZE + j);
+            }
+        }
 
         btnStartPause = (Button) rootView.findViewById(R.id.btnStartPause);
         btnStartPause.setOnClickListener(new View.OnClickListener() {
@@ -171,16 +169,16 @@ public class GameFragment extends Fragment implements Observer {
 
     private void showPoint() {
         getViewAtPoint(gameDto.getCurrentPoint()).startAnimation(animationShow);
-//        getViewAtPoint(gameDto.getCurrentPoint()).setVisibility(View.VISIBLE);
+        getViewAtPoint(gameDto.getCurrentPoint()).setVisibility(View.VISIBLE);
     }
 
     private void hidePoint() {
         getViewAtPoint(gameDto.getCurrentPoint()).startAnimation(animationHide);
-//        getViewAtPoint(gameDto.getCurrentPoint()).setVisibility(View.INVISIBLE);
+        getViewAtPoint(gameDto.getCurrentPoint()).setVisibility(View.INVISIBLE);
     }
 
     private View getViewAtPoint(Point point) {
-        return gameGrid.getChildAt(point.x * game.FIELD_SIZE + point.y);
+        return gameGrid.getChildAt(point.x * game.FIELD_SIZE + point.y).findViewWithTag("btn");
     }
 
     private void flashButtonGreen() {

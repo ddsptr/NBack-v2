@@ -1,7 +1,7 @@
 package com.nback.app;
 
-//import android.support.v4.app.Fragment;
-import android.app.Fragment;
+//import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.graphics.Point;
 import android.util.Log;
 
