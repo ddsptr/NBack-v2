@@ -10,6 +10,17 @@
         android:textStyle="bold" android:textSize="50sp" android:gravity="center"
         android:text="@string/dummy_content" />
 
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/fragment_game"
+              android:name="com.nback.app.GameFragment"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context="com.dds.NBack.GameFragment"
+              tools:layout="@android:layout/list_content"
+        >
+    </fragment>
+
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent"
