@@ -93,11 +93,15 @@ class Game extends Observable implements Runnable{
                 break;
 
             case PAUSED:
-//                try {
-//                    wait();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
+                synchronized (this) {
+                    while (state == State.PAUSED) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 break;
 
             case MATCHING:
@@ -206,11 +210,21 @@ class Game extends Observable implements Runnable{
         if (state != State.PAUSED) {
             stateBeforePause = state;
             timePaused = System.currentTimeMillis();
-            state = State.PAUSED;
-        } else {
-            state = stateBeforePause;
-            if (state == State.DELAYED) {
-                startDelay += System.currentTimeMillis() - timePaused;
+            synchronized (this) {
+                state = State.PAUSED;
+            }
+        }
+        notifyStateChanged();
+    }
+
+    public void resume() {
+        if (state == State.PAUSED) {
+            synchronized (this) {
+                state = stateBeforePause;
+                if (state == State.DELAYED) {
+                    startDelay += System.currentTimeMillis() - timePaused;
+                }
+                this.notify();
             }
         }
         notifyStateChanged();

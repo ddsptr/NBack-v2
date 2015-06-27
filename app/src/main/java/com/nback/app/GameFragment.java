@@ -2,9 +2,7 @@ package com.nback.app;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
-import android.content.Context;
 import android.support.v4.app.Fragment;
-//import android.app.Fragment;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-//import android.widget.GridLayout;
 import android.support.v7.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +24,7 @@ import java.util.Observer;
  */
 public class GameFragment extends Fragment implements Observer {
     private final static String LOG_TAG = GameFragment.class.getSimpleName();
+
     private Game game;
     private GameDto gameDto;
     private GridLayout gameGrid;
@@ -38,12 +36,6 @@ public class GameFragment extends Fragment implements Observer {
     private Button btnPosition;
     private Button btnStartPause;
     private boolean positionPushed = false;
-
-    @Override
-    public void onStart() {
-        super.onStart();
-//        gameGrid = (GridLayout) getActivity().findViewById(R.id.gameGrid);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,7 +51,7 @@ public class GameFragment extends Fragment implements Observer {
         for (int i = 0; i < game.FIELD_SIZE; i++) {
             for (int j = 0; j < game.FIELD_SIZE; j++) {
                 view = inflater.inflate(R.layout.grid_cell, null);
-                gameGrid.addView(view); //, i * game.FIELD_SIZE + j);
+                gameGrid.addView(view);
             }
         }
 
@@ -70,16 +62,16 @@ public class GameFragment extends Fragment implements Observer {
                 if (game.getState() == State.STOPPED) {
                     game.initializeParams(2, TimeLapse.SLOW);
                     new Thread(game).start();
-                    v.setKeepScreenOn(true);
+                    getView().setKeepScreenOn(true);
                     btnStartPause.setText("PAUSE");
                 } else if (game.getState() == State.PAUSED) {
-                    v.setKeepScreenOn(true);
+                    getView().setKeepScreenOn(true);
                     btnStartPause.setText("PAUSE");
-                    game.pause();
+                    game.resume();
                 } else {
-                    v.setKeepScreenOn(false);
+                    getView().setKeepScreenOn(false);
                     btnStartPause.setText("RESUME");
-                    game.pause();
+                    pause();
                 }
             }
         });
@@ -88,7 +80,9 @@ public class GameFragment extends Fragment implements Observer {
             @Override
             public void onClick(View v) {
                 game.stop();
-                hidePoint();
+                if (gameDto != null) {
+                    hidePoint();
+                }
             }
         });
 
@@ -118,10 +112,10 @@ public class GameFragment extends Fragment implements Observer {
         animationHide = AnimationUtils.loadAnimation(getActivity(), R.anim.point_hide);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
+    public void pause() {
+        if (game != null) {
+            game.pause();
+        }
     }
 
     @Override
