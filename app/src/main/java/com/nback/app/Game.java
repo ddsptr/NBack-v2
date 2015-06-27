@@ -9,7 +9,7 @@ import java.util.*;
 
 class Game extends Observable implements Runnable{
     private final static String LOG_TAG = Game.class.getSimpleName();
-    public static final int FIELD_SIZE = 3;
+    private static final int FIELD_SIZE = 3;
     public static final int GAME_CYCLES = 20;
     public static final int TIME_LAPSE_FAST = (int)(1 * 1000);
     public static final int TIME_LAPSE_MIDDLE = (int)(2 * 1000);
@@ -34,10 +34,12 @@ class Game extends Observable implements Runnable{
     private long mTimePaused;
     private State mStateAfterMatch;
     private boolean mMatchPushed;
+    private int mFieldSize;
 
     public Game(Observer observer) {
         mObserver = observer;
         addObserver(observer);
+        mFieldSize = FIELD_SIZE;
     }
 
     public Point getRandomPoint() {
@@ -276,6 +278,10 @@ class Game extends Observable implements Runnable{
 
     public State getState() {
         return mState;
+    }
+
+    public int getFieldSize() {
+        return mFieldSize;
     }
 }
 

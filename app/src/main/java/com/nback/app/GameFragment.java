@@ -44,13 +44,13 @@ public class GameFragment extends Fragment implements Observer {
         Fragment fragment = this;
         mGame = new Game((Observer) fragment);
         mGameGrid = (GridLayout) rootView.findViewById(R.id.gameGrid);
-        mGameGrid.setColumnCount(mGame.FIELD_SIZE);
-        mGameGrid.setRowCount(mGame.FIELD_SIZE);
+        mGameGrid.setColumnCount(mGame.getFieldSize());
+        mGameGrid.setRowCount(mGame.getFieldSize());
         mGameGrid.setUseDefaultMargins(true);
 
         View view;
-        for (int i = 0; i < mGame.FIELD_SIZE; i++) {
-            for (int j = 0; j < mGame.FIELD_SIZE; j++) {
+        for (int i = 0; i < mGame.getFieldSize(); i++) {
+            for (int j = 0; j < mGame.getFieldSize(); j++) {
                 view = inflater.inflate(R.layout.grid_cell, null);
                 mGameGrid.addView(view);
             }
@@ -64,14 +64,14 @@ public class GameFragment extends Fragment implements Observer {
                     mGame.initializeParams(2, TimeLapse.SLOW);
                     new Thread(mGame).start();
                     getView().setKeepScreenOn(true);
-                    mButtonStartPause.setText("PAUSE");
+                    mButtonStartPause.setText(R.string.pause);
                 } else if (mGame.getState() == State.PAUSED) {
                     getView().setKeepScreenOn(true);
-                    mButtonStartPause.setText("PAUSE");
+                    mButtonStartPause.setText(R.string.pause);
                     mGame.resume();
                 } else {
                     getView().setKeepScreenOn(false);
-                    mButtonStartPause.setText("RESUME");
+                    mButtonStartPause.setText(R.string.resume);
                     pause();
                 }
             }
@@ -116,6 +116,7 @@ public class GameFragment extends Fragment implements Observer {
     public void pause() {
         if (mGame != null) {
             mGame.pause();
+            ((GameActivity) getActivity()).show();
         }
     }
 
@@ -175,7 +176,7 @@ public class GameFragment extends Fragment implements Observer {
     }
 
     private View getViewAtPoint(Point point) {
-        return mGameGrid.getChildAt(point.x * mGame.FIELD_SIZE + point.y).findViewWithTag("btn");
+        return mGameGrid.getChildAt(point.x * mGame.getFieldSize() + point.y).findViewWithTag("btn");
     }
 
     private void flashButtonGreen() {
