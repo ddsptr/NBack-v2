@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -131,7 +132,9 @@ public class GameFragment extends Fragment implements Observer {
             Log.d(LOG_TAG, "MATCHING");
             updateResult();
         } else if (mGameDto.getState() == State.PAUSED) {
-            Toast.makeText(getActivity(), "GAME PAUSED!", Toast.LENGTH_LONG).show();
+            Toast toast = Toast.makeText(getActivity(), "GAME PAUSED!", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0 ,0);
+            toast.show();
             Log.d(LOG_TAG, "PAUSED");
         } else if (mGameDto.getState() == State.STOPPED) {
             Log.d(LOG_TAG, "STOPPED");

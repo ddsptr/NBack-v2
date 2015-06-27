@@ -66,26 +66,11 @@ class Game extends Observable implements Runnable{
         switch (mState) {
 
             case SHOWING_POINT:
-                mStateAfterMatch = State.HIDING_POINT;
-                mCurrentCycle++;
-                mCycleMatched = false;
-                mMatchPushed = false;
-                if (mCurrentCycle > GAME_CYCLES) {
-                    gameOver();
-                    break;
-                }
-                showPoint();
-                delay(State.HIDING_POINT);
+                handleShowingPoint();
                 break;
 
             case HIDING_POINT:
-                mStateAfterMatch = State.SHOWING_POINT;
-                hidePoint();
-                if (!mCycleMatched) {
-                    delay(State.MATCHING);
-                } else {
-                    delay(State.SHOWING_POINT);
-                }
+                handleHidingPoint();
                 break;
 
             case DELAYED:
@@ -93,30 +78,63 @@ class Game extends Observable implements Runnable{
                 break;
 
             case PAUSED:
-                synchronized (this) {
-                    while (mState == State.PAUSED) {
-                        try {
-                            wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                handlePaused();
                 break;
 
             case MATCHING:
-                if (!mCycleMatched) {
-                    mCycleMatched = true;
-                    checkMatch();
-                    mMatchPushed = false;
-                }
-                mStateAfterDelay = mStateAfterMatch;
-                mState = State.DELAYED;
+                handleMatching();
                 break;
 
             case STOPPED:
                 break;
         }
+    }
+
+    private void handleMatching() {
+        if (!mCycleMatched) {
+            mCycleMatched = true;
+            checkMatch();
+            mMatchPushed = false;
+        }
+        mStateAfterDelay = mStateAfterMatch;
+        mState = State.DELAYED;
+    }
+
+    private void handlePaused() {
+        synchronized (this) {
+            while (mState == State.PAUSED) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void handleHidingPoint() {
+        mStateAfterMatch = State.SHOWING_POINT;
+        hidePoint();
+        if (!mCycleMatched) {
+            delay(State.MATCHING);
+        } else {
+            delay(State.SHOWING_POINT);
+        }
+        return;
+    }
+
+    private void handleShowingPoint() {
+        mStateAfterMatch = State.HIDING_POINT;
+        mCurrentCycle++;
+        mCycleMatched = false;
+        mMatchPushed = false;
+        if (mCurrentCycle > GAME_CYCLES) {
+            gameOver();
+            return;
+        }
+        showPoint();
+        delay(State.HIDING_POINT);
+        return;
     }
 
     private void handleDelay() {
