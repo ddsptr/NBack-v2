@@ -25,52 +25,52 @@ import java.util.Observer;
 public class GameFragment extends Fragment implements Observer {
     private final static String LOG_TAG = GameFragment.class.getSimpleName();
 
-    private Game game;
-    private GameDto gameDto;
-    private GridLayout gameGrid;
-    private TextView result;
-    private Animation animationShow;
-    private Animation animationHide;
-    private AnimatorSet positionAnimatorGreen;
-    private AnimatorSet positionAnimatorRed;
-    private Button btnPosition;
-    private Button btnStartPause;
-    private boolean positionPushed = false;
+    private Game mGame;
+    private GameDto mGameDto;
+    private GridLayout mGameGrid;
+    private TextView mResult;
+    private Animation mAnimationShow;
+    private Animation mAnimationHide;
+    private AnimatorSet mPositionAnimatorGreen;
+    private AnimatorSet mPositionAnimatorRed;
+    private Button mButtonPosition;
+    private Button mButtonStartPause;
+    private boolean mPositionPushed = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_game, container, false);
         Fragment fragment = this;
-        game = new Game((Observer) fragment);
-        gameGrid = (GridLayout) rootView.findViewById(R.id.gameGrid);
-        gameGrid.setColumnCount(game.FIELD_SIZE);
-        gameGrid.setRowCount(game.FIELD_SIZE);
-        gameGrid.setUseDefaultMargins(true);
+        mGame = new Game((Observer) fragment);
+        mGameGrid = (GridLayout) rootView.findViewById(R.id.gameGrid);
+        mGameGrid.setColumnCount(mGame.FIELD_SIZE);
+        mGameGrid.setRowCount(mGame.FIELD_SIZE);
+        mGameGrid.setUseDefaultMargins(true);
 
         View view;
-        for (int i = 0; i < game.FIELD_SIZE; i++) {
-            for (int j = 0; j < game.FIELD_SIZE; j++) {
+        for (int i = 0; i < mGame.FIELD_SIZE; i++) {
+            for (int j = 0; j < mGame.FIELD_SIZE; j++) {
                 view = inflater.inflate(R.layout.grid_cell, null);
-                gameGrid.addView(view);
+                mGameGrid.addView(view);
             }
         }
 
-        btnStartPause = (Button) rootView.findViewById(R.id.btnStartPause);
-        btnStartPause.setOnClickListener(new View.OnClickListener() {
+        mButtonStartPause = (Button) rootView.findViewById(R.id.btnStartPause);
+        mButtonStartPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (game.getState() == State.STOPPED) {
-                    game.initializeParams(2, TimeLapse.SLOW);
-                    new Thread(game).start();
+                if (mGame.getState() == State.STOPPED) {
+                    mGame.initializeParams(2, TimeLapse.SLOW);
+                    new Thread(mGame).start();
                     getView().setKeepScreenOn(true);
-                    btnStartPause.setText("PAUSE");
-                } else if (game.getState() == State.PAUSED) {
+                    mButtonStartPause.setText("PAUSE");
+                } else if (mGame.getState() == State.PAUSED) {
                     getView().setKeepScreenOn(true);
-                    btnStartPause.setText("PAUSE");
-                    game.resume();
+                    mButtonStartPause.setText("PAUSE");
+                    mGame.resume();
                 } else {
                     getView().setKeepScreenOn(false);
-                    btnStartPause.setText("RESUME");
+                    mButtonStartPause.setText("RESUME");
                     pause();
                 }
             }
@@ -79,28 +79,28 @@ public class GameFragment extends Fragment implements Observer {
         rootView.findViewById(R.id.btnStop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                game.stop();
-                if (gameDto != null) {
+                mGame.stop();
+                if (mGameDto != null) {
                     hidePoint();
                 }
             }
         });
 
-        btnPosition = (Button) rootView.findViewById(R.id.btnPosition);
-        positionAnimatorGreen = (AnimatorSet) AnimatorInflater.loadAnimator(getActivity(), R.animator.flash_green);
-        positionAnimatorGreen.setTarget(btnPosition);
-        positionAnimatorRed = (AnimatorSet) AnimatorInflater.loadAnimator(getActivity(), R.animator.flash_red);
-        positionAnimatorRed.setTarget(btnPosition);
+        mButtonPosition = (Button) rootView.findViewById(R.id.btnPosition);
+        mPositionAnimatorGreen = (AnimatorSet) AnimatorInflater.loadAnimator(getActivity(), R.animator.flash_green);
+        mPositionAnimatorGreen.setTarget(mButtonPosition);
+        mPositionAnimatorRed = (AnimatorSet) AnimatorInflater.loadAnimator(getActivity(), R.animator.flash_red);
+        mPositionAnimatorRed.setTarget(mButtonPosition);
 
-        btnPosition.setOnClickListener(new View.OnClickListener() {
+        mButtonPosition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                game.match();
-                positionPushed = true;
+                mGame.match();
+                mPositionPushed = true;
             }
         });
 
-        result = (TextView) rootView.findViewById(R.id.tvResult);
+        mResult = (TextView) rootView.findViewById(R.id.tvResult);
 
         return rootView;
     }
@@ -108,78 +108,78 @@ public class GameFragment extends Fragment implements Observer {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        animationShow = AnimationUtils.loadAnimation(getActivity(), R.anim.point_show);
-        animationHide = AnimationUtils.loadAnimation(getActivity(), R.anim.point_hide);
+        mAnimationShow = AnimationUtils.loadAnimation(getActivity(), R.anim.point_show);
+        mAnimationHide = AnimationUtils.loadAnimation(getActivity(), R.anim.point_hide);
     }
 
     public void pause() {
-        if (game != null) {
-            game.pause();
+        if (mGame != null) {
+            mGame.pause();
         }
     }
 
     @Override
     public void update(Observable observable, Object data) {
-        gameDto = (GameDto) data;
-        if (gameDto.getState() == State.SHOWING_POINT) {
+        mGameDto = (GameDto) data;
+        if (mGameDto.getState() == State.SHOWING_POINT) {
             Log.d(LOG_TAG, "SHOWING_POINT");
             showPoint();
-        } else if (gameDto.getState() == State.HIDING_POINT) {
+        } else if (mGameDto.getState() == State.HIDING_POINT) {
             Log.d(LOG_TAG, "HIDING_POINT");
             hidePoint();
-        } else if (gameDto.getState() == State.MATCHING) {
+        } else if (mGameDto.getState() == State.MATCHING) {
             Log.d(LOG_TAG, "MATCHING");
             updateResult();
-        } else if (gameDto.getState() == State.PAUSED) {
+        } else if (mGameDto.getState() == State.PAUSED) {
             Toast.makeText(getActivity(), "GAME PAUSED!", Toast.LENGTH_LONG).show();
             Log.d(LOG_TAG, "PAUSED");
-        } else if (gameDto.getState() == State.STOPPED) {
+        } else if (mGameDto.getState() == State.STOPPED) {
             Log.d(LOG_TAG, "STOPPED");
-            result.setText(String.format("GAME OVER! R: %s W: %s", gameDto.getMatched(), gameDto.getMismatched()));
-            btnStartPause.setText("START");
+            mResult.setText(String.format("GAME OVER! R: %s W: %s", mGameDto.getMatched(), mGameDto.getMismatched()));
+            mButtonStartPause.setText("START");
             getView().setKeepScreenOn(false);
         }
     }
 
     private void updateResult() {
-        Matched matched = gameDto.getLastMatch();
+        Matched matched = mGameDto.getLastMatch();
         if (matched == Matched.MATCH) {
-            result.setTextColor(getResources().getColor(R.color.green));
-            if (positionPushed) {
+            mResult.setTextColor(getResources().getColor(R.color.green));
+            if (mPositionPushed) {
                 flashButtonGreen();
-                positionPushed = false;
+                mPositionPushed = false;
             }
         } else if (matched == Matched.MISMATCH) {
-            result.setTextColor(getResources().getColor(R.color.red));
-            if (positionPushed) {
+            mResult.setTextColor(getResources().getColor(R.color.red));
+            if (mPositionPushed) {
                 flashButtonRed();
-                positionPushed = false;
+                mPositionPushed = false;
             }
         } else {
-            result.setTextColor(getResources().getColor(R.color.black));
+            mResult.setTextColor(getResources().getColor(R.color.black));
         }
-        result.setText(String.format("R: %s W: %s", gameDto.getMatched(), gameDto.getMismatched()));
+        mResult.setText(String.format("R: %s W: %s", mGameDto.getMatched(), mGameDto.getMismatched()));
     }
 
     private void showPoint() {
-        getViewAtPoint(gameDto.getCurrentPoint()).startAnimation(animationShow);
-        getViewAtPoint(gameDto.getCurrentPoint()).setVisibility(View.VISIBLE);
+        getViewAtPoint(mGameDto.getCurrentPoint()).startAnimation(mAnimationShow);
+        getViewAtPoint(mGameDto.getCurrentPoint()).setVisibility(View.VISIBLE);
     }
 
     private void hidePoint() {
-        getViewAtPoint(gameDto.getCurrentPoint()).startAnimation(animationHide);
-        getViewAtPoint(gameDto.getCurrentPoint()).setVisibility(View.INVISIBLE);
+        getViewAtPoint(mGameDto.getCurrentPoint()).startAnimation(mAnimationHide);
+        getViewAtPoint(mGameDto.getCurrentPoint()).setVisibility(View.INVISIBLE);
     }
 
     private View getViewAtPoint(Point point) {
-        return gameGrid.getChildAt(point.x * game.FIELD_SIZE + point.y).findViewWithTag("btn");
+        return mGameGrid.getChildAt(point.x * mGame.FIELD_SIZE + point.y).findViewWithTag("btn");
     }
 
     private void flashButtonGreen() {
-        positionAnimatorGreen.start();
+        mPositionAnimatorGreen.start();
     }
 
     private void flashButtonRed() {
-        positionAnimatorRed.start();
+        mPositionAnimatorRed.start();
     }
 }

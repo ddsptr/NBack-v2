@@ -15,28 +15,28 @@ class Game extends Observable implements Runnable{
     public static final int TIME_LAPSE_MIDDLE = (int)(2 * 1000);
     public static final int TIME_LAPSE_SLOW = (int)(3 * 1000);
 
-    private Point currentPoint;
-    private int level;
-    private Observer observer;
-    private Queue<Point> moves = new LinkedList<Point>();
-    private Matched lastMatch = Matched.EMPTY;
-    private Point nBackPoint;
-    private int matched;
-    private int mismatched;
-    private int timeLapse;
-    private boolean initializedParams = false;
-    private State state = State.STOPPED;
-    private long startDelay;
-    private State stateAfterDelay;
-    private int currentCycle;
-    private boolean cycleMatched;
-    private State stateBeforePause;
-    private long timePaused;
-    private State stateAfterMatch;
-    private boolean matchPushed;
+    private Point mCurrentPoint;
+    private int mLevel;
+    private Observer mObserver;
+    private Queue<Point> mMoves = new LinkedList<Point>();
+    private Matched mLastMatch = Matched.EMPTY;
+    private Point mNBackPoint;
+    private int mMatched;
+    private int mMismatched;
+    private int mTimeLapse;
+    private boolean mInitializedParams = false;
+    private State mState = State.STOPPED;
+    private long mStartDelay;
+    private State mStateAfterDelay;
+    private int mCurrentCycle;
+    private boolean mCycleMatched;
+    private State mStateBeforePause;
+    private long mTimePaused;
+    private State mStateAfterMatch;
+    private boolean mMatchPushed;
 
     public Game(Observer observer) {
-        this.observer = observer;
+        mObserver = observer;
         addObserver(observer);
     }
 
@@ -51,11 +51,11 @@ class Game extends Observable implements Runnable{
     }
 
     private void startGameLoop() {
-        state = State.SHOWING_POINT;
-        currentCycle = 0;
+        mState = State.SHOWING_POINT;
+        mCurrentCycle = 0;
         while (true) {
             update();
-            if (state == State.STOPPED) {
+            if (mState == State.STOPPED) {
                 notifyStateChanged();
                 break;
             }
@@ -63,14 +63,14 @@ class Game extends Observable implements Runnable{
     }
 
     private void update() {
-        switch (state) {
+        switch (mState) {
 
             case SHOWING_POINT:
-                stateAfterMatch = State.HIDING_POINT;
-                currentCycle++;
-                cycleMatched = false;
-                matchPushed = false;
-                if (currentCycle > GAME_CYCLES) {
+                mStateAfterMatch = State.HIDING_POINT;
+                mCurrentCycle++;
+                mCycleMatched = false;
+                mMatchPushed = false;
+                if (mCurrentCycle > GAME_CYCLES) {
                     gameOver();
                     break;
                 }
@@ -79,9 +79,9 @@ class Game extends Observable implements Runnable{
                 break;
 
             case HIDING_POINT:
-                stateAfterMatch = State.SHOWING_POINT;
+                mStateAfterMatch = State.SHOWING_POINT;
                 hidePoint();
-                if (!cycleMatched) {
+                if (!mCycleMatched) {
                     delay(State.MATCHING);
                 } else {
                     delay(State.SHOWING_POINT);
@@ -94,7 +94,7 @@ class Game extends Observable implements Runnable{
 
             case PAUSED:
                 synchronized (this) {
-                    while (state == State.PAUSED) {
+                    while (mState == State.PAUSED) {
                         try {
                             wait();
                         } catch (InterruptedException e) {
@@ -105,13 +105,13 @@ class Game extends Observable implements Runnable{
                 break;
 
             case MATCHING:
-                if (!cycleMatched) {
-                    cycleMatched = true;
+                if (!mCycleMatched) {
+                    mCycleMatched = true;
                     checkMatch();
-                    matchPushed = false;
+                    mMatchPushed = false;
                 }
-                stateAfterDelay = stateAfterMatch;
-                state = State.DELAYED;
+                mStateAfterDelay = mStateAfterMatch;
+                mState = State.DELAYED;
                 break;
 
             case STOPPED:
@@ -120,73 +120,73 @@ class Game extends Observable implements Runnable{
     }
 
     private void handleDelay() {
-        if (System.currentTimeMillis() - startDelay >= 0.5 * timeLapse) {
-            state = stateAfterDelay;
+        if (System.currentTimeMillis() - mStartDelay >= 0.5 * mTimeLapse) {
+            mState = mStateAfterDelay;
         }
     }
 
     private void gameOver() {
-        state = State.STOPPED;
+        mState = State.STOPPED;
         Log.d(LOG_TAG, "STOPPED");
         notifyStateChanged();
     }
 
     private void delay(State state) {
-        this.state = State.DELAYED;
-        startDelay = System.currentTimeMillis();
-        stateAfterDelay = state;
+        mState = State.DELAYED;
+        mStartDelay = System.currentTimeMillis();
+        mStateAfterDelay = state;
     }
 
     private void hidePoint() {
-        state = State.HIDING_POINT;
+        mState = State.HIDING_POINT;
         Log.d(LOG_TAG, "HIDING_POINT");
         notifyStateChanged();
     }
 
     private void showPoint() {
-        currentPoint = getRandomPoint();
-        Log.d(LOG_TAG, "currentPoint x = " + currentPoint.x + " y = " + currentPoint.y);
-        moves.add(currentPoint);
-        if (moves.size() > level)
+        mCurrentPoint = getRandomPoint();
+        Log.d(LOG_TAG, "mCurrentPoint x = " + mCurrentPoint.x + " y = " + mCurrentPoint.y);
+        mMoves.add(mCurrentPoint);
+        if (mMoves.size() > mLevel)
         {
-            nBackPoint = moves.remove();
+            mNBackPoint = mMoves.remove();
         }
-        state = State.SHOWING_POINT;
+        mState = State.SHOWING_POINT;
         Log.d(LOG_TAG, "SHOWING_POINT");
         notifyStateChanged();
     }
 
     public void initializeParams(int level, TimeLapse timeLapse){
-        this.level = level;
+        mLevel = level;
         switch (timeLapse){
             case FAST:
-                this.timeLapse = TIME_LAPSE_FAST;
+                mTimeLapse = TIME_LAPSE_FAST;
                 break;
             case MEDIUM:
-                this.timeLapse = TIME_LAPSE_MIDDLE;
+                mTimeLapse = TIME_LAPSE_MIDDLE;
                 break;
             case SLOW:
-                this.timeLapse = TIME_LAPSE_SLOW;
+                mTimeLapse = TIME_LAPSE_SLOW;
                 break;
             default:
-                this.timeLapse = TIME_LAPSE_SLOW;
+                mTimeLapse = TIME_LAPSE_SLOW;
         }
-        initializedParams = true;
+        mInitializedParams = true;
     }
 
     private void initialize() {
-        if (!initializedParams) {
+        if (!mInitializedParams) {
             throw new IllegalStateException();
         }
-        nBackPoint = null;
-        matched = 0;
-        mismatched = 0;
-        moves.clear();
+        mNBackPoint = null;
+        mMatched = 0;
+        mMismatched = 0;
+        mMoves.clear();
     }
 
     private void notifyStateChanged() {
         final GameDto gameDto = toDto();
-        ((Fragment) observer).getActivity().runOnUiThread(new Runnable() {
+        ((Fragment) mObserver).getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 setChanged();
@@ -196,33 +196,33 @@ class Game extends Observable implements Runnable{
     }
 
     public void stop() {
-        state = State.STOPPED;
+        mState = State.STOPPED;
     }
 
     public void match() {
-        if (!cycleMatched) {
-            state = State.MATCHING;
-            matchPushed = true;
+        if (!mCycleMatched) {
+            mState = State.MATCHING;
+            mMatchPushed = true;
         }
     }
 
     public void pause() {
-        if (state != State.PAUSED) {
-            stateBeforePause = state;
-            timePaused = System.currentTimeMillis();
+        if (mState != State.PAUSED) {
+            mStateBeforePause = mState;
+            mTimePaused = System.currentTimeMillis();
             synchronized (this) {
-                state = State.PAUSED;
+                mState = State.PAUSED;
             }
         }
         notifyStateChanged();
     }
 
     public void resume() {
-        if (state == State.PAUSED) {
+        if (mState == State.PAUSED) {
             synchronized (this) {
-                state = stateBeforePause;
-                if (state == State.DELAYED) {
-                    startDelay += System.currentTimeMillis() - timePaused;
+                mState = mStateBeforePause;
+                if (mState == State.DELAYED) {
+                    mStartDelay += System.currentTimeMillis() - mTimePaused;
                 }
                 this.notify();
             }
@@ -236,28 +236,28 @@ class Game extends Observable implements Runnable{
     }
 
     private void checkMatch() {
-        if (nBackPoint != null) {
-            Log.d(LOG_TAG, "nBackPoint x = " + nBackPoint.x + " y = " + nBackPoint.y);
+        if (mNBackPoint != null) {
+            Log.d(LOG_TAG, "mNBackPoint x = " + mNBackPoint.x + " y = " + mNBackPoint.y);
             Log.d(LOG_TAG, "MATCHING");
-            if (nBackPoint.equals(currentPoint) == matchPushed) {
+            if (mNBackPoint.equals(mCurrentPoint) == mMatchPushed) {
                 Log.d(LOG_TAG, "Match!");
-                lastMatch = Matched.MATCH;
-                matched++;
+                mLastMatch = Matched.MATCH;
+                mMatched++;
             } else {
                 Log.d(LOG_TAG, "Mismatch!");
-                lastMatch = Matched.MISMATCH;
-                mismatched++;
+                mLastMatch = Matched.MISMATCH;
+                mMismatched++;
             }
             notifyStateChanged();
         }
     }
 
     private GameDto toDto(){
-        return new GameDto(currentPoint, matched, mismatched, state, lastMatch);
+        return new GameDto(mCurrentPoint, mMatched, mMismatched, mState, mLastMatch);
     }
 
     public State getState() {
-        return state;
+        return mState;
     }
 }
 
